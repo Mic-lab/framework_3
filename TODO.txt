@@ -7,3 +7,11 @@
 - ui
 	- buttons
 - dt (?)
+
+
+
+
+
+Unimportant
+- Is it better to set inputs to False or to remove them from dictionnary and use .get() ?
+- use is called unnecessarily (at every frame) for mgl
