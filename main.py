@@ -5,20 +5,27 @@ from data.scripts import utils
 from data.scripts.screen import screen
 from data.scripts import mgl
 from moderngl import TRIANGLE_STRIP
+from data.scripts.states.menu import Menu
 
 class GameHandler:
 
     def __init__(self):
         self.canvas = pygame.Surface(config.CANVAS_SIZE)
         self.clock = pygame.time.Clock()
-        self.mode = 'game'
         self.inputs = {'pressed': {}, 'released': {}, 'held': {}}
+
+        self.set_state(Menu)
+
+    def set_state(self, state):
+        self.state = state(self)
 
     def handle_input(self):
         for key in self.inputs['pressed']:
             self.inputs['pressed'][key] = self.inputs['released'][key] = False
 
-        self.inputs['mouse pos'] = pygame.mouse.get_pos()
+        mx, my = pygame.mouse.get_pos()
+        self.inputs['mouse pos'] = (mx // config.SCALE, my // config.SCALE)
+        self.inputs['unscaled mouse pos'] = mx, my
 
         for event in pygame.event.get():
 
@@ -47,19 +54,10 @@ class GameHandler:
     def run(self):
         self.running = True
 
-        surf = utils.load_img('D:/image.png')
-
         while self.running:
-            
             self.handle_input()
 
-            self.canvas.fill((0, 0, 50))
-            self.canvas.blit(surf, (0, 0))
-
-            #
-            # canvas_tex = mgl.surf2tex(self.canvas)
-            # canvas_tex.use(0)
-            # mgl.program['canvasTex'] = 0
+            self.state.update()
 
             mgl.transfer_shader_surfs(
                 {'canvasTex': self.canvas}

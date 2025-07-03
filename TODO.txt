@@ -3,7 +3,7 @@
 - animations
 - timer
 - entity
-- states, transitions, foof input method
+transitions
 - ui
 	- buttons
 - dt (?)
