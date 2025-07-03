@@ -1,6 +1,6 @@
 from array import array
 import moderngl
-from .utils import read_file
+from .utils import read_txt
 
 ctx = moderngl.create_context()
 
@@ -12,8 +12,8 @@ quad_buffer = ctx.buffer(data=array('f', [
     1.0, -1.0, 1.0, 1.0,   # bottomright
 ]))
 
-vert_shader = read_file('data/scripts/shaders/vert.glsl')
-frag_shader = read_file('data/scripts/shaders/frag.glsl')
+vert_shader = read_txt('data/scripts/shaders/vert.glsl')
+frag_shader = read_txt('data/scripts/shaders/frag.glsl')
 
 program = ctx.program(vertex_shader=vert_shader, fragment_shader=frag_shader)
 render_object = ctx.vertex_array(program, [(quad_buffer, '2f 2f', 'vert', 'texcoord')])
