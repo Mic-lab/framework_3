@@ -1,5 +1,6 @@
 # from .screen import screen
 import pygame
+import json
 from glob import glob
 
 def load_img(path, colorkey=(0, 0, 0)):

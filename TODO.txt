@@ -6,6 +6,7 @@
 transitions
 - ui
 	- buttons
+    - automatically loop through ui in state
 - dt (?)
 
 
@@ -13,8 +14,11 @@ transitions
 
 
 Unimportant
-- Is it better to set inputs to False or to remove them from dictionnary and use .get() ?
+- Is it better to set inputs to False or to remove them from dictionnary and
+  use .get() ?
 - use is called unnecessarily (at every frame) for mgl
+- load_db for StaticImg could be done recursivly to allow you to organize
+  images in different folders
 
 
 
