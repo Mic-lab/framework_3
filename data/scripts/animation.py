@@ -114,7 +114,7 @@ class Animation:
         self.flip = flip
 
     @property
-    def rect(self):
+    def rect(self) -> pygame.Rect:
         base_rect = Animation.animation_db[self.name]['rect'].copy()
         if any(self.flip):
             for i, flip in enumerate(self.flip):

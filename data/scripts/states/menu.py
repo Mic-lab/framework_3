@@ -15,7 +15,8 @@ class Menu(State):
             'hello': Button(pygame.Rect(30, 30, 80, 20), 'harloo', 'basic')
         }
 
-        self.entity = PhysicsEntity(pos=(30, 30), name='side', action='idle')
+        self.entity = PhysicsEntity(pos=(120, 30), name='side', action='idle')
+        self.e_speed = 1.5
 
 
     def update(self):
@@ -25,18 +26,25 @@ class Menu(State):
             btn.render(self.handler.canvas)
         self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
 
-        self.entity.vel[0] = 0
+        self.entity.vel = [0, 0]
         if self.handler.inputs['held'].get('a'):
-            self.entity.vel[0] = -1
+            self.entity.vel[0] -= self.e_speed
             self.entity.animation.flip[0] = True
         elif self.handler.inputs['held'].get('d'):
-            self.entity.vel[0] = 1
+            self.entity.vel[0] += self.e_speed
             self.entity.animation.flip[0] = False
-        if self.entity.vel.x == 0:
-            self.entity.animation.set_action('idle')
-        else:
+
+        if self.handler.inputs['held'].get('w'):
+            self.entity.vel[1] -= self.e_speed
+        elif self.handler.inputs['held'].get('s'):
+            self.entity.vel[1] += self.e_speed
+
+        if any(self.entity.vel):
             self.entity.animation.set_action('run')
-        self.entity.update()
+        else:
+            self.entity.animation.set_action('idle')
+
+        self.entity.update((self.buttons['hello'].rect, ))
         self.entity.render(self.handler.canvas)
 
-        self.handler.canvas.blit(FONTS['basic'].get_surf(f'{round(self.handler.clock.get_fps())} fps'), (0, 0))
+        self.handler.canvas.blit(FONTS['basic'].get_surf(f'''{round(self.handler.clock.get_fps())} fps'''), (0, 0))

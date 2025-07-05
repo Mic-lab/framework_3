@@ -1,4 +1,5 @@
 - entity
+    - handle floats
     - during generation, generate all bounding rects, crop all images, and dont
       forget to flip bonding rect when flipping sprite
     - collisions

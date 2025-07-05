@@ -120,7 +120,7 @@
    { "name": "run", "from": 5, "to": 12, "direction": "forward" }
   ],
   "slices": [
-   { "name": "rect", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 26, "y": 17, "w": 17, "h": 15 } }] }
+   { "name": "rect", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 26, "y": 17, "w": 11, "h": 15 } }] }
   ]
  }
 }
