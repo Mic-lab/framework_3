@@ -9,17 +9,30 @@ class Animation:
 
     @staticmethod
     def load_spritesheet(config, spritesheet: pygame.Surface):
-        spritesheet_data = {}
+
+        pprint(config['frames'])
+        frames_data = {}
+
+        offset = None
 
         for frame in config['frames']:
 
-            # filename is action
+            print('\n')
+            pprint(frame)
 
+            if offset is None:
+                offset = (frame['spriteSourceSize']['x'], frame['spriteSourceSize']['y'])
+            else:
+                if (frame['spriteSourceSize']['x'], frame['spriteSourceSize']['y']) != offset:
+                    raise ValueError('The sprite size is inconsistent. Probably have the wrong export option')
+
+
+            # filename is action
             if not frame['filename']:  # Untagged
                 continue
 
-            if frame['filename'] not in spritesheet_data:
-                spritesheet_data[frame['filename']] = []
+            if frame['filename'] not in frames_data:
+                frames_data[frame['filename']] = []
                                                       
             frame_rect = pygame.Rect(
                 frame['frame']['x'],
@@ -29,10 +42,40 @@ class Animation:
             )
 
             frame_img = spritesheet.subsurface(frame_rect)
-            spritesheet_data[frame['filename']].append(
+            frames_data[frame['filename']].append(
                 {'img': frame_img,
                  'duration': frame['duration'] // (100/6)}  # convert ms to frames at 60 FPS
             )
+
+        for slice in config['meta']['slices']:
+            if slice['name'] == 'rect':
+                # There should only be one frame, but aseprite is a bit buggy
+                dict_rect = slice['keys'][0]['bounds']
+                rect_data = pygame.Rect(dict_rect['x'],
+                                        dict_rect['y'],
+                                        dict_rect['w'],
+                                        dict_rect['h'])
+                break
+        else:
+            pprint(frames_data)
+            if 'idle' in frames_data:
+                default_action = 'idle'
+            else:
+                default_action = next(iter(frames_data))
+
+            print(default_action, '---')
+            default_img = frames_data[default_action][0]['img']
+            print(f'[Warning] No slice for {config["meta"]["image"]}; Generating rect with {default_action}')
+            rect_data = default_img.get_bounding_rect()
+
+        rect_data.x -= offset[0]
+        rect_data.y -= offset[1]
+
+
+        spritesheet_data = {
+            'frames': frames_data,
+            'rect': rect_data
+        }
 
         return spritesheet_data
 
@@ -62,12 +105,23 @@ class Animation:
             else:
                 continue
 
-    def __init__(self, name, action, flip=[False, False]):
+    def __init__(self, name, action, flip=None):
         self.name = name
         self.action = None
         self.set_action(action, reset=True)
+        if flip is None:
+            flip = [False, False]
         self.flip = flip
 
+    @property
+    def rect(self):
+        base_rect = Animation.animation_db[self.name]['rect'].copy()
+        if any(self.flip):
+            for i, flip in enumerate(self.flip):
+                if flip:
+                    base_rect[i] = self.img.get_size()[i] - base_rect[i] - base_rect[i + 2]
+        return base_rect
+ 
     @property
     def img(self):
         base_img = self.frame['img']
@@ -77,7 +131,7 @@ class Animation:
 
     @property
     def frames(self):
-        return Animation.animation_db[self.name][self.action]
+        return Animation.animation_db[self.name]['frames'][self.action]
 
     @property
     def frame(self):

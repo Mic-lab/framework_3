@@ -1,23 +1,44 @@
+- entity
+    - during generation, generate all bounding rects, crop all images, and dont
+      forget to flip bonding rect when flipping sprite
+    - collisions
 - shader abstraction
 - particles
+    - Make them an entity. name='particles', particle name is action
+    - Provide colorkey
+    - how to put them in spritesheet
+    - how to cache imgs and rotations, prolly shouldnt use animation (1 functionality principle)
+    - glow
 - animations
+    - static images, nothing in animation
+    - when loading, if key in imgs, use that, else, check the other dict
+    - rects wil only be saved for animation (just because it probably won't be used for static images, cause you just make png without any empty space)
 - timer
-- entity
 transitions
+- crt
 - ui
 	- buttons
+    - other uis like text or images
     - automatically loop through ui in state
+
+
+
+
 - dt (?)
 
-
-
-
-
 Unimportant
+- Allow different slices for different actions. But slices are buggy so maybe
+  new rect method entirely
+- Entity z attribute
+- Use the layers in aseprite if neeed
 - Is it better to set inputs to False or to remove them from dictionnary and
   use .get() ?
 - use is called unnecessarily (at every frame) for mgl
-- load_db for StaticImg could be done recursivly to allow you to organize
+- Rect changing dimensions/pos is not taken into account during collision. This
+  happens when flipping with an asymetrical rect, so it doesn't happen so not a
+  big deal frequently. And if it does happen, it just makes a snappy clip once
+  you move, so not a big deal
+- load_db for StaticImg could be done recursivly to allow you to organize. keys could be unique or include path
   images in different folders
 
 
