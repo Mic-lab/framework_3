@@ -3,6 +3,7 @@ from ..button import Button
 from ..font import FONTS
 from .. import animation
 from ..entity import Entity, PhysicsEntity
+from ..timer import Timer
 from .state import State
 import pygame
 
@@ -17,14 +18,28 @@ class Menu(State):
 
         self.entity = PhysicsEntity(pos=(120, 30), name='side', action='idle')
         self.e_speed = 1.5
+        self.timers = []
 
+    def sub_update(self):
 
-    def update(self):
+        # Update timer 
+        new_timers = []
+        for timer in self.timers:
+            if not timer.done:
+                new_timers.append(timer)
+            timer.update()
+        self.timers = new_timers
+
+        if self.handler.inputs['pressed'].get('mouse2'):
+            self.timers.append(Timer(60))
+
         self.handler.canvas.fill((20, 20, 20))
+        self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
+
+        # Update Buttons
         for key, btn in self.buttons.items():
             btn.update(self.handler.inputs)
             btn.render(self.handler.canvas)
-        self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
 
         self.entity.vel = [0, 0]
         if self.handler.inputs['held'].get('a'):
@@ -33,12 +48,10 @@ class Menu(State):
         elif self.handler.inputs['held'].get('d'):
             self.entity.vel[0] += self.e_speed
             self.entity.animation.flip[0] = False
-
         if self.handler.inputs['held'].get('w'):
             self.entity.vel[1] -= self.e_speed
         elif self.handler.inputs['held'].get('s'):
             self.entity.vel[1] += self.e_speed
-
         if any(self.entity.vel):
             self.entity.animation.set_action('run')
         else:
@@ -47,4 +60,6 @@ class Menu(State):
         self.entity.update((self.buttons['hello'].rect, ))
         self.entity.render(self.handler.canvas)
 
-        self.handler.canvas.blit(FONTS['basic'].get_surf(f'''{round(self.handler.clock.get_fps())} fps'''), (0, 0))
+        text = [f'{round(self.handler.clock.get_fps())} fps',
+        str(list(self.timers))]
+        self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))
