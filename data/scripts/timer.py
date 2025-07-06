@@ -11,3 +11,12 @@ class Timer:
 
     def __repr__(self):
         return f'<Timer({self.frame})>'
+
+    @staticmethod
+    def update_timers(timers):
+        new_timers = []
+        for timer in timers:
+            if not timer.done:
+                new_timers.append(timer)
+            timer.update()
+        return new_timers

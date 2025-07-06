@@ -22,15 +22,9 @@ class Menu(State):
 
     def sub_update(self):
 
-        # Update timer 
-        new_timers = []
-        for timer in self.timers:
-            if not timer.done:
-                new_timers.append(timer)
-            timer.update()
-        self.timers = new_timers
+        self.timers = Timer.update_timers(self.timers)
 
-        if self.handler.inputs['pressed'].get('mouse2'):
+        if self.handler.inputs['pressed'].get('mouse3'):
             self.timers.append(Timer(60))
 
         self.handler.canvas.fill((20, 20, 20))
@@ -52,6 +46,7 @@ class Menu(State):
             self.entity.vel[1] -= self.e_speed
         elif self.handler.inputs['held'].get('s'):
             self.entity.vel[1] += self.e_speed
+
         if any(self.entity.vel):
             self.entity.animation.set_action('run')
         else:
@@ -61,5 +56,6 @@ class Menu(State):
         self.entity.render(self.handler.canvas)
 
         text = [f'{round(self.handler.clock.get_fps())} fps',
+                f'{self.entity.vel}',
         str(list(self.timers))]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))

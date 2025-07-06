@@ -25,6 +25,13 @@ class Button:
         self.selected = False
         self.clicked = False
         self.released = False
+        self.generate_surf()
+
+    @property
+    def state(self):
+        if self.clicked: return 2
+        elif self.selected: return 1
+        else: return 0
         
     @property
     def colors(self):
@@ -32,17 +39,18 @@ class Button:
             return self.presets[self.preset]['colors']
         else:
             if self.clicked:
-                change = 0.16
+                change = 2
             else:
-                change = 0.08
+                change = 1
 
             modes = deepcopy(self.presets[self.preset]['colors'])
                         
             for key, color in modes.items():    
                 color = self.rgb_to_hsv(color)
-                color[2] += change
-                color[1] += change/2
-                color[0] -= change/2
+                color[0] += change * 0.04
+                color[1] += change * 0.06
+                color[2] += change * 0.08
+
                 if color[2] > 1:
                     color[2] = 1
                 if color[1] > 1:
@@ -52,31 +60,39 @@ class Button:
                 modes[key] = color
             return modes
 
+    def generate_surf(self):
+        self.surf = pygame.Surface(self.rect.size)
+        self.surf.set_colorkey((0, 0, 0))
+        rect = pygame.Rect(0, 0, *self.rect.size)
+        pygame.draw.rect(self.surf, self.colors['border'], rect, border_radius=2)
+        x, y, w, h = rect
+        x += 1
+        y += 1
+        w -= 2
+        h -= 3
+        pygame.draw.rect(self.surf, self.colors['fill'], (x, y, w, h), border_radius=2)
+        # pygame.draw.aaline(self.surf, self.colors['text'], (x, y), (x, y + h - 2))
+        # pygame.draw.aaline(self.surf, self.colors['text'], (x, y), (x + w - 1, y))
+        text_img = FONTS[self.presets[self.preset].get('font', 'basic')].get_surf(self.text, color=self.colors['text'])
+        self.surf.blit(text_img, (rect.centerx - text_img.get_width()*0.5,
+                             rect.centery - text_img.get_height()*0.5))
         
     def update(self, inputs):
-        self.clicked = False
+        old_state = self.state
 
+        self.clicked = False
         if self.rect.collidepoint(inputs.get('mouse pos')):
             self.selected = True
             if inputs['pressed'].get('mouse1'):
                 self.clicked = True
         else:
             self.selected = False
+
+        if self.state != old_state:
+            self.generate_surf()
                 
     def render(self, surf):
-        pygame.draw.rect(surf, self.colors['border'], self.rect, border_radius=2)
-        x, y, w, h = self.rect
-        x += 1
-        y += 1
-        w -= 2
-        h -= 3
-        pygame.draw.rect(surf, self.colors['fill'], (x, y, w, h), border_radius=2)
-        # pygame.draw.aaline(surf, self.colors['text'], (x, y), (x, y + h - 2))
-        # pygame.draw.aaline(surf, self.colors['text'], (x, y), (x + w - 1, y))
-        text_img = FONTS[self.presets[self.preset].get('font', 'basic')].get_surf(self.text, color=self.colors['text'])
-        surf.blit(text_img, (self.rect.centerx - text_img.get_width()*0.5,
-                             self.rect.centery - text_img.get_height()*0.5))
-        return text_img
+        surf.blit(self.surf, self.rect.topleft)
     
     @staticmethod
     def rgb_to_hsv(rgb):

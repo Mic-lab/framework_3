@@ -5,7 +5,7 @@ from .animation import Animation
     
 class Entity:
     def __init__(self, pos, name, action=None):
-        self._real_pos = Vector2(pos)        # int position
+        self._real_pos = Vector2(pos)
         self.name = name
         self.animation = Animation(name, action)
         self.flip = [False, False]
@@ -17,7 +17,12 @@ class Entity:
     def change_pos(self, change_vec):
         # Did not want to use a setter method because it wouldn't be
         # called if you only touch one axis (like pos.x += x)
-        self._real_pos = self.pos + change_vec
+        
+        # self._real_pos = self.pos + change_vec 
+        if change_vec.x:
+            self._real_pos.x = self.pos.x + change_vec.x
+        if change_vec.y:
+            self._real_pos.y = self.pos.y + change_vec.y
 
     @property
     def rect(self) -> pygame.Rect:
