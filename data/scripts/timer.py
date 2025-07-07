@@ -10,7 +10,7 @@ class Timer:
         self.done = self.frame == self.duration
 
     def __repr__(self):
-        return f'<Timer({self.frame})>'
+        return f'<Timer({self.frame}/{self.duration})>'
 
     @staticmethod
     def update_timers(timers):

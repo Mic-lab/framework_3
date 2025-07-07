@@ -4,7 +4,9 @@ from ..font import FONTS
 from .. import animation
 from ..entity import Entity, PhysicsEntity
 from ..timer import Timer
+from ..particle import Particle, ParticleGenerator
 from .state import State
+import pprint
 import pygame
 
 class Menu(State):
@@ -19,6 +21,7 @@ class Menu(State):
         self.entity = PhysicsEntity(pos=(120, 30), name='side', action='idle')
         self.e_speed = 1.5
         self.timers = []
+        self.particle_gens = [ParticleGenerator.from_template((100, 200), 'angle test')]
 
     def sub_update(self):
 
@@ -28,7 +31,15 @@ class Menu(State):
             self.timers.append(Timer(60))
 
         self.handler.canvas.fill((20, 20, 20))
-        self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
+
+        if self.handler.inputs['pressed'].get('mouse1'):
+            self.particle_gens.append(ParticleGenerator.from_template(self.handler.inputs['mouse pos'], 'smoke'))
+
+        self.particle_gens = ParticleGenerator.update_generators(self.particle_gens)
+        for particle_gen in self.particle_gens:
+            particle_gen.render(self.handler.canvas)
+
+        self.handler.canvas.set_at(self.handler.inputs['mouse pos'], (255, 0, 0))
 
         # Update Buttons
         for key, btn in self.buttons.items():
@@ -56,6 +67,5 @@ class Menu(State):
         self.entity.render(self.handler.canvas)
 
         text = [f'{round(self.handler.clock.get_fps())} fps',
-                f'{self.entity.vel}',
-        str(list(self.timers))]
+                f'{self.entity.vel}']
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))

@@ -1,7 +1,7 @@
 import pygame
+from math import atan, pi
 from pygame import Vector2
 from .animation import Animation
-
     
 class Entity:
     def __init__(self, pos, name, action=None):
@@ -33,10 +33,10 @@ class Entity:
         return self.animation.img
 
     def update(self):
-        self.animation.update()
+        return self.animation.update()
 
     def render(self, surf):
-        pygame.draw.rect(surf, (255, 0, 0), self.rect)
+        # pygame.draw.rect(surf, (255, 0, 0), self.rect)
         surf.blit(self.img, self.pos)
 
     def __repr__(self):
@@ -54,14 +54,20 @@ class PhysicsEntity(Entity):
                                      'down': False,
                                      'left': False}
 
+    @property
+    def angle(self):
+        angle = self.vel.angle_to(Vector2(1, 0))
+        return angle
+
     def update(self, rects=None):
-        super().update()
+        output = super().update()
 
         self.move(rects)
         self.vel += self.acceleration
         if abs(self.vel.x) > self.max_vel.x: self.max_vel.x = self.max_vel.x / abs(self.max_vel).x * self.max_vel.x
         if abs(self.vel.y) > self.max_vel.y: self.max_vel.y = self.max_vel.y / abs(self.max_vel).y * self.max_vel.x
 
+        return output
 
     def move(self, rects):
         if not rects:
@@ -75,7 +81,6 @@ class PhysicsEntity(Entity):
 
         for axis in range(2):
             self.resolve_collisions(axis, rects)
-
 
     def resolve_collisions(self, axis, rects):
         self._real_pos[axis] += self.vel[axis]

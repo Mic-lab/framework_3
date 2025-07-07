@@ -9,16 +9,11 @@ class Animation:
 
     @staticmethod
     def load_spritesheet(config, spritesheet: pygame.Surface):
-
-        pprint(config['frames'])
         frames_data = {}
 
         offset = None
 
         for frame in config['frames']:
-
-            print('\n')
-            pprint(frame)
 
             if offset is None:
                 offset = (frame['spriteSourceSize']['x'], frame['spriteSourceSize']['y'])
@@ -47,6 +42,8 @@ class Animation:
                  'duration': frame['duration'] // (100/6)}  # convert ms to frames at 60 FPS
             )
 
+        if len(config['meta']['slices']) > 1:
+            print(f'[Warning] for {config["meta"]["image"]}, has several slices ({len(config["meta"]["slices"])})')
         for slice in config['meta']['slices']:
             if slice['name'] == 'rect':
                 # There should only be one frame, but aseprite is a bit buggy
@@ -55,26 +52,24 @@ class Animation:
                                         dict_rect['y'],
                                         dict_rect['w'],
                                         dict_rect['h'])
+                rect_data.x -= offset[0]
+                rect_data.y -= offset[1]
                 break
         else:
-            pprint(frames_data)
             if 'idle' in frames_data:
                 default_action = 'idle'
             else:
                 default_action = next(iter(frames_data))
-
-            print(default_action, '---')
             default_img = frames_data[default_action][0]['img']
             print(f'[Warning] No slice for {config["meta"]["image"]}; Generating rect with {default_action}')
             rect_data = default_img.get_bounding_rect()
 
-        rect_data.x -= offset[0]
-        rect_data.y -= offset[1]
 
 
         spritesheet_data = {
             'frames': frames_data,
-            'rect': rect_data
+            'rect': rect_data,
+            'size': frame_img.get_size()  # Assumes all frames has same size
         }
 
         return spritesheet_data
@@ -107,6 +102,7 @@ class Animation:
 
     def __init__(self, name, action, flip=None):
         self.name = name
+        self.size = Animation.animation_db[self.name]['size']
         self.action = None
         self.set_action(action, reset=True)
         if flip is None:
@@ -159,4 +155,6 @@ class Animation:
 
 Animation.load_db()
 
+print(f'{" Animation DB ":{"-"}^80}')
 pprint(Animation.animation_db)
+print('_'*80)

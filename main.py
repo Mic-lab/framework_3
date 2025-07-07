@@ -11,11 +11,8 @@ class GameHandler:
 
     def __init__(self):
         self.canvas = pygame.Surface(config.CANVAS_SIZE)
-        # ok
-        print('hello')
         self.clock = pygame.time.Clock()
         self.inputs = {'pressed': {}, 'released': {}, 'held': {}}
-
         self.set_state(Menu)
 
     def set_state(self, state):

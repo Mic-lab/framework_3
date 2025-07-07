@@ -5,6 +5,9 @@
     - collisions
 - shader abstraction
 - particles
+    - Caching img
+        - colorkey
+        - rotation
     - Make them an entity. name='particles', particle name is action
     - Provide colorkey
     - how to put them in spritesheet
@@ -22,12 +25,15 @@ transitions
     - other uis like text or images
     - automatically loop through ui in state
 
-
-
-
 - dt (?)
 
 Unimportant
+- Make a class for collecting objects. That way there is less repetition with
+  for e, update() render(). Class can also handle removing elements when life
+  exceeds duration
+ Optimization: for particle copy's method, don't use deepcopy because
+  animations and surfs are being duplicated too (?)
+   - actually no cause img is a property not an attribute
 - Allow different slices for different actions. But slices are buggy so maybe
   new rect method entirely
 - Entity z attribute
