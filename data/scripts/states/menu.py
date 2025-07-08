@@ -1,3 +1,4 @@
+from .state import State
 from .. import utils
 from ..button import Button
 from ..font import FONTS
@@ -5,7 +6,7 @@ from .. import animation
 from ..entity import Entity, PhysicsEntity
 from ..timer import Timer
 from ..particle import Particle, ParticleGenerator
-from .state import State
+from .. import sfx
 import pprint
 import pygame
 
@@ -14,14 +15,20 @@ class Menu(State):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.surf = animation.Animation.img_db['test']
+
+        rects = [pygame.Rect(30, 30+i*30, 60, 20) for i in range(4)]
         self.buttons = {
-            'hello': Button(pygame.Rect(30, 30, 80, 20), 'harloo', 'basic')
+            'hello': Button(rects[0], 'harloo', 'basic'),
+            'music 1': Button(rects[1], 'music 1', 'basic'),
+            'music 2': Button(rects[2], 'music 2', 'basic'),
+            'stop': Button(rects[3], 'stop', 'basic'),
         }
 
         self.entity = PhysicsEntity(pos=(120, 30), name='side', action='idle')
         self.e_speed = 1.5
         self.timers = []
-        self.particle_gens = [ParticleGenerator.from_template((100, 200), 'angle test')]
+        self.particle_gens = [ParticleGenerator.from_template((200, 200), 'angle test'),
+                              ParticleGenerator.from_template((300, 200), 'color test')]
 
     def sub_update(self):
 
@@ -46,6 +53,16 @@ class Menu(State):
             btn.update(self.handler.inputs)
             btn.render(self.handler.canvas)
 
+            if btn.clicked:
+                if key == 'music 1':
+                    sfx.play_music('song_1.wav')
+                elif key == 'music 2':
+                    sfx.play_music('song_2.wav')
+                    pygame.mixer.music.play(1)
+                elif key == 'stop':
+                    pygame.mixer.music.fadeout(2000)
+
+
         self.entity.vel = [0, 0]
         if self.handler.inputs['held'].get('a'):
             self.entity.vel[0] -= self.e_speed
@@ -63,9 +80,11 @@ class Menu(State):
         else:
             self.entity.animation.set_action('idle')
 
-        self.entity.update((self.buttons['hello'].rect, ))
+        self.entity.update([btn.rect for btn in self.buttons.values()])
         self.entity.render(self.handler.canvas)
 
         text = [f'{round(self.handler.clock.get_fps())} fps',
-                f'{self.entity.vel}']
+                f'{self.entity.vel}',
+                # pprint.pformat(Particle.cache)
+                ]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))

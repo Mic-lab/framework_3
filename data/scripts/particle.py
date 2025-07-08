@@ -1,8 +1,8 @@
 import random
 from .timer import Timer
 from .entity import PhysicsEntity
+from . import utils
 from copy import deepcopy
-from functools import lru_cache
 import pygame
 from pygame import Vector2
 
@@ -11,16 +11,20 @@ class Particle(PhysicsEntity):
     ANGLE_ROUNDING = 30
     cache = {}
 
-    def __init__(self, pos=(0, 0), angled=False, *args, **kwargs):
+    def __init__(self, pos=(0, 0), angled=False, color=None, *args, **kwargs):
         name = 'particles'
         super().__init__(pos=pos, name=name, *args, **kwargs)
         self.angled = angled
+        self.color = color
         self.alive = True
 
     @property
     def cache_key(self):
-        if self.angled:
-            return (self.animation.action, self.rounded_angle)
+        if self.angled or self.color:
+            angle = self.rounded_angle if self.angled else None
+            return (self.animation.action, self.animation.animation_frame, self.color, angle)
+        else:
+            return None
 
     @property
     def rounded_angle(self):
@@ -31,9 +35,12 @@ class Particle(PhysicsEntity):
         base_img = super().img
         if self.cache_key:
             if self.cache_key not in Particle.cache:
-                Particle.cache[self.cache_key] = pygame.transform.rotate(base_img, self.rounded_angle)
+                if self.color:
+                    base_img = utils.swap_colors(base_img, (255, 255, 255), self.color)
+                if self.angled:
+                    base_img = pygame.transform.rotate(base_img, self.rounded_angle)
+                Particle.cache[self.cache_key] = base_img
             return Particle.cache[self.cache_key]
-
         return base_img
 
     def update(self, *args, **kwargs):
@@ -51,18 +58,26 @@ class ParticleGenerator:
             'rate': 10
         },
         'angle test': {
-            'base_particle': Particle(action='arrow', vel=(0, -2), acceleration=(0, 0.05), angled=True),
+            'base_particle': Particle(action='arrow', vel=(0, -2), acceleration=(0, 0.05), angled=True, color=(50, 100, 240)),
             'vel_randomness': 1,
-            'rate': 5,
+            'rate': 3,
             'inverse_rate': True,
             'duration': None,
-        }
+        },
+        'color test': {
+            'base_particle': Particle(action='group', vel=(0, -2), color=(255, 0, 68)),
+            'vel_randomness': 0.5,
+            'rate': 8,
+            'inverse_rate': True,
+            'duration': None,
+        },
     }
 
     @classmethod
     def from_template(cls, pos, template_key, **overwrites):
         config = ParticleGenerator.TEMPLATES[template_key]
-        config = config | overwrites  # https://stackoverflow.com/questions/38987/how-do-i-merge-two-dictionaries-in-a-single-expression-in-python
+        # https://stackoverflow.com/questions/38987/how-do-i-merge-two-dictionaries-in-a-single-expression-in-python
+        config = config | overwrites  
         return cls(pos=pos, **config)
 
     def __init__(self, base_particle: Particle, pos, vel_randomness=1, duration=1, rate=1, inverse_rate=False):
