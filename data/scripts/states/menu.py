@@ -34,9 +34,10 @@ class Menu(State):
     def sub_update(self):
 
         if self.timer:
-            self.timer.update()
             if self.timer.done:
                 self.timer = None
+            else:
+                self.timer.update()
 
         if self.handler.inputs['pressed'].get('mouse3'):
             self.timer = Timer(60)

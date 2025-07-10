@@ -15,6 +15,7 @@ quad_buffer = ctx.buffer(data=array('f', [
 def surf2tex(surf):
     tex = ctx.texture(surf.get_size(), 4)
     tex.filter = (moderngl.NEAREST, moderngl.NEAREST)
+    tex.repeat_x = tex.repeat_y = False
     tex.swizzle = 'BGRA'
     tex.write(surf.get_view('1'))
     return tex

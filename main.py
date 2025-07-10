@@ -14,8 +14,8 @@ class GameHandler:
         self.inputs = {'pressed': {}, 'released': {}, 'held': {}}
         self.set_state(Menu)
 
-        self.shader_surfs = {}
-        self.shader_vars = {}
+        shader_handler.vars['pxScale'] = 3
+        shader_handler.vars['screenSize'] = config.SCREEN_SIZE
 
     def set_state(self, state):
         self.state = state(self)

@@ -1,13 +1,16 @@
 #version 330 core
 
 uniform sampler2D canvasTex;
+uniform int pxScale;
+uniform vec2 screenSize;
 uniform float shakeTimer = -1.0;
 uniform float caTimer = -1.0;
 in vec2 uvs;
 out vec4 f_color;
 
 const float PI = 3.14159265359;
-const float caCoef = 0.5;
+const vec2 gridSize = vec2(64, 64);
+const float caCoef = 0.005;
 const float shakeCoef = 0.01;
 
 vec2 rotateVec(vec2 vec, float theta) {
@@ -15,10 +18,18 @@ vec2 rotateVec(vec2 vec, float theta) {
     + vec.y * vec2(sin(theta), -cos(theta));
 }
 
+float linearEase(float x) {
+    return -2*abs(x - 0.5) + 1;
+}
+
 void main() {
     f_color = vec4(texture(canvasTex, uvs).rgb, 1.0);
     float centerDist = distance(uvs, vec2(0.5, 0.5));
+    vec2 pxCoord = floor(uvs * screenSize / pxScale) * pxScale;
+    // vec2 pxCoord = uvs * screenSize;
+    // vec2 pxCoord = vec2(uvs.x*screenSize.x, uvs.y*screenSize.y);
 
+    // Blurry shake
     if (shakeTimer >= 0) {
         float shakeIntensity = (1 - shakeTimer)*centerDist * shakeCoef;
         vec2 shakeSampleVec = vec2(0.0, shakeIntensity);
@@ -27,14 +38,9 @@ void main() {
         vec4 caSample3 = texture(canvasTex, uvs - rotateVec(shakeSampleVec, 4.0*PI/3.0));
         vec4 sampleMix = mix( mix(caSample1, caSample2, 0.5), caSample3, 0.5 );
         f_color = mix(f_color, sampleMix, 0.5);
-
-
-        // vec4 caSample1 = vec4(texture(canvasTex, uvs + vec2(shakeIntensity)).rgb, 1.0);
-        // vec4 caSample2 = vec4(texture(canvasTex, uvs - vec2(shakeIntensity)).rgb, 1.0);
-        // vec4 caSample = mix(caSample1, caSample2, 0.5);
-        // f_color = mix(f_color, caSample, (1 - caTimer));
     }
 
+    // Chromatic abberation
     if (caTimer >= 0) {
         float caIntensity = (1 - caTimer)*centerDist * caCoef;
         vec2 sampleVec = vec2(0.0, caIntensity);
@@ -44,6 +50,26 @@ void main() {
         f_color.r = caSample1;
         f_color.g = caSample2;
         f_color.b = caSample3;
+    }
+
+    float transitionTimer = caTimer;
+
+    if (transitionTimer >= 0) { 
+        // f_color = mix(f_color, vec4(1.0,0.0,0.0,0.0), pxCoord.x / screenSize.x);
+        // f_color = mix(f_color, vec4(1.0,0.0,0.0,0.0), uvs.x);
+        // f_color = vec4(pxCoord.x / screenSize.x, pxCoord.y / screenSize.y, 0.0, 0.0);
+        // f_color = vec4(cellCoord.x / gridSize.x, cellCoord.y / gridSize.y, 0.0, 0.0);
+
+        vec2 cellCoord = mod(pxCoord, gridSize);
+        vec2 cellRatio = cellCoord / gridSize;
+        // float cellDistribution = distance(vec2(0.5), cellRatio) * 2.0;
+        float cellDistribution = linearEase(cellRatio.x) * linearEase(cellRatio.y);
+        float cellTransition = cellDistribution - 1 + 2*transitionTimer;
+        if (cellTransition <= 0) {
+            f_color = vec4(cellTransition);
+        }
+        
+
     }
     
 }
