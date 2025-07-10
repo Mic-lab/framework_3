@@ -3,8 +3,7 @@ import pygame
 from data.scripts import config
 from data.scripts import utils
 from data.scripts.screen import screen
-from data.scripts import mgl
-from moderngl import TRIANGLE_STRIP
+from data.scripts.mgl import shader_handler
 from data.scripts.states.menu import Menu
 
 class GameHandler:
@@ -14,6 +13,9 @@ class GameHandler:
         self.clock = pygame.time.Clock()
         self.inputs = {'pressed': {}, 'released': {}, 'held': {}}
         self.set_state(Menu)
+
+        self.shader_surfs = {}
+        self.shader_vars = {}
 
     def set_state(self, state):
         self.state = state(self)
@@ -58,14 +60,10 @@ class GameHandler:
 
             self.state.update()
 
-            mgl.transfer_shader_surfs(
-                {'canvasTex': self.canvas}
-            )
-
-            mgl.render_object.render(mode=TRIANGLE_STRIP)
+            shader_handler.surfs['canvasTex'] = self.canvas
+            shader_handler.render()
             pygame.display.flip()
-            mgl.release_textures()
-
+            shader_handler.release_textures()
             self.clock.tick(config.fps)
 
         pygame.quit()

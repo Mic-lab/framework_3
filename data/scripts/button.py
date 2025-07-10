@@ -76,7 +76,7 @@ class Button:
         # pygame.draw.aaline(self.surf, self.colors['text'], (x, y), (x + w - 1, y))
         text_img = FONTS[self.presets[self.preset].get('font', 'basic')].get_surf(self.text, color=self.colors['text'])
         self.surf.blit(text_img, (rect.centerx - text_img.get_width()*0.5,
-                             rect.centery - text_img.get_height()*0.5+1))
+                             rect.centery - text_img.get_height()*0.5 - 1))
         
     def update(self, inputs, select_sound='select.wav', click_sound='click.wav'):
         old_state = self.state

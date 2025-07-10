@@ -1,4 +1,5 @@
 from .state import State
+from ..mgl import shader_handler
 from .. import utils
 from ..button import Button
 from ..font import FONTS
@@ -16,7 +17,7 @@ class Menu(State):
         super().__init__(*args, **kwargs)
         self.surf = animation.Animation.img_db['test']
 
-        rects = [pygame.Rect(30, 30+i*30, 60, 20) for i in range(4)]
+        rects = [pygame.Rect(30, 30+i*30, 80, 20) for i in range(4)]
         self.buttons = {
             'hello': Button(rects[0], 'harloo', 'basic'),
             'music 1': Button(rects[1], 'music 1', 'basic'),
@@ -26,18 +27,22 @@ class Menu(State):
 
         self.entity = PhysicsEntity(pos=(120, 30), name='side', action='idle')
         self.e_speed = 1.5
-        self.timers = []
+        self.timer = None
         self.particle_gens = [ParticleGenerator.from_template((200, 200), 'angle test'),
                               ParticleGenerator.from_template((300, 200), 'color test')]
 
     def sub_update(self):
 
-        self.timers = Timer.update_timers(self.timers)
+        if self.timer:
+            self.timer.update()
+            if self.timer.done:
+                self.timer = None
 
         if self.handler.inputs['pressed'].get('mouse3'):
-            self.timers.append(Timer(60))
+            self.timer = Timer(60)
 
         self.handler.canvas.fill((20, 20, 20))
+        self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
 
         if self.handler.inputs['pressed'].get('mouse1'):
             self.particle_gens.append(ParticleGenerator.from_template(self.handler.inputs['mouse pos'], 'smoke'))
@@ -55,7 +60,7 @@ class Menu(State):
 
             if btn.clicked:
                 if key == 'music 1':
-                    sfx.play_music('song_1.wav')
+                    sfx.play_music('song_1.wav', -1)
                 elif key == 'music 2':
                     sfx.play_music('song_2.wav')
                     pygame.mixer.music.play(1)
@@ -88,3 +93,6 @@ class Menu(State):
                 # pprint.pformat(Particle.cache)
                 ]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))
+
+        # shader_handler.vars['shakeTimer'] = -1 if not self.timer else self.timer.ratio ** 2
+        shader_handler.vars['caTimer'] = -1 if not self.timer else self.timer.ratio ** 2

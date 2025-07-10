@@ -9,6 +9,10 @@ class Timer:
         self.frame += 1
         self.done = self.frame == self.duration
 
+    @property
+    def ratio(self):
+        return self.frame / self.duration
+
     def __repr__(self):
         return f'<Timer({self.frame}/{self.duration})>'
 
