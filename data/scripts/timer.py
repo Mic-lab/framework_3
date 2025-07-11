@@ -1,13 +1,20 @@
 class Timer:
 
     def __init__(self, duration):
-        self.frame = 0
         self.duration = duration
+        self.reset()
+
+    def reset(self):
+        self.frame = 0
         self.done = False
 
     def update(self):
         self.frame += 1
         self.done = self.frame == self.duration
+
+    def get_ease_squared(self):
+        # return 1 - (1 - self.frame) ** 2
+        return 1 - (1 - self.ratio) ** 2
 
     @property
     def ratio(self):

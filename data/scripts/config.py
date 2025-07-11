@@ -1,6 +1,5 @@
-
-# CANVAS_SIZE = (384, 216)
-CANVAS_SIZE = (768, 432)
+# https://pacoup.com/2011/06/12/list-of-true-169-resolutions/
+CANVAS_SIZE = (640, 360)
 SCALE = 2
 SCREEN_SIZE = SCALE*CANVAS_SIZE[0], SCALE*CANVAS_SIZE[1]
 

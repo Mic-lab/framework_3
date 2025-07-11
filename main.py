@@ -2,23 +2,33 @@ import sys
 import pygame
 from data.scripts import config
 from data.scripts import utils
-from data.scripts.screen import screen
 from data.scripts.mgl import shader_handler
-from data.scripts.states.menu import Menu
+from data.scripts import game_states
+from data.scripts.transition import Transition
 
 class GameHandler:
 
     def __init__(self):
+        self.states = game_states
         self.canvas = pygame.Surface(config.CANVAS_SIZE)
         self.clock = pygame.time.Clock()
         self.inputs = {'pressed': {}, 'released': {}, 'held': {}}
-        self.set_state(Menu)
-
-        shader_handler.vars['pxScale'] = 3
-        shader_handler.vars['screenSize'] = config.SCREEN_SIZE
+        self.set_state(self.states.Menu)
+        self.transition = Transition()
 
     def set_state(self, state):
         self.state = state(self)
+
+    def transition_to(self, state):
+        self.next_state = state
+        self.transition.start()
+
+    def handle_transition(self):
+        switch = self.transition.update()
+        if switch:
+            self.set_state(self.next_state)
+        shader_handler.vars['transitionTimer'] = self.transition.timer.get_ease_squared()
+        shader_handler.vars['transitionState'] = self.transition.state
 
     def handle_input(self):
         for key in self.inputs['pressed']:
@@ -51,7 +61,6 @@ class GameHandler:
                 self.inputs['released'][key_name] = True
                 self.inputs['held'][key_name] = False
 
-
     def run(self):
         self.running = True
 
@@ -59,6 +68,8 @@ class GameHandler:
             self.handle_input()
 
             self.state.update()
+
+            self.handle_transition()
 
             shader_handler.surfs['canvasTex'] = self.canvas
             shader_handler.render()

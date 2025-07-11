@@ -10,6 +10,7 @@
         / rotation
     / Provide colorkey
     / how to cache imgs and rotations, prolly shouldnt use animation (1 functionality principle)
+    - alpha
     - glow
 - animations
     ~ static images, nothing in animation

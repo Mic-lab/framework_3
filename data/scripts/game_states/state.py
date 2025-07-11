@@ -7,8 +7,6 @@ class State:
 
     def update(self):
 
-
-
         self.sub_update()
 
     @abstractmethod

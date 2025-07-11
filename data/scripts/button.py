@@ -107,5 +107,3 @@ class Button:
     def hsv_to_rgb(hsv):
         hsv = list(colorsys.hsv_to_rgb(*hsv))
         return [i*255 for i in hsv]
-
-

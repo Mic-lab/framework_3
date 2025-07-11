@@ -1,14 +1,14 @@
 from .state import State
+from .game import Game
 from ..mgl import shader_handler
-from .. import utils
+from ..import utils
 from ..button import Button
 from ..font import FONTS
-from .. import animation
+from ..import animation
 from ..entity import Entity, PhysicsEntity
 from ..timer import Timer
 from ..particle import Particle, ParticleGenerator
 from .. import sfx
-import pprint
 import pygame
 
 class Menu(State):
@@ -19,7 +19,7 @@ class Menu(State):
 
         rects = [pygame.Rect(30, 30+i*30, 80, 20) for i in range(4)]
         self.buttons = {
-            'hello': Button(rects[0], 'harloo', 'basic'),
+            'game': Button(rects[0], 'harloo', 'basic'),
             'music 1': Button(rects[1], 'music 1', 'basic'),
             'music 2': Button(rects[2], 'music 2', 'basic'),
             'stop': Button(rects[3], 'stop', 'basic'),
@@ -60,14 +60,14 @@ class Menu(State):
             btn.render(self.handler.canvas)
 
             if btn.clicked:
-                if key == 'music 1':
+                if key == 'game':
+                    self.handler.transition_to(Game)
+                elif key == 'music 1':
                     sfx.play_music('song_1.wav', -1)
                 elif key == 'music 2':
                     sfx.play_music('song_2.wav')
-                    pygame.mixer.music.play(1)
                 elif key == 'stop':
-                    pygame.mixer.music.fadeout(2000)
-
+                    pygame.mixer.music.fadeout(1000)
 
         self.entity.vel = [0, 0]
         if self.handler.inputs['held'].get('a'):
@@ -90,7 +90,7 @@ class Menu(State):
         self.entity.render(self.handler.canvas)
 
         text = [f'{round(self.handler.clock.get_fps())} fps',
-                f'{self.entity.vel}',
+                f'vel = {self.entity.vel}',
                 # pprint.pformat(Particle.cache)
                 ]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))
