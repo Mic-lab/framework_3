@@ -4,7 +4,7 @@ from data.scripts import config
 from data.scripts import utils
 from data.scripts.mgl import shader_handler
 from data.scripts import game_states
-from data.scripts.transition import Transition
+from data.scripts.transition import Transition, TransitionState
 
 class GameHandler:
 
@@ -67,7 +67,8 @@ class GameHandler:
         while self.running:
             self.handle_input()
 
-            self.state.update()
+            if self.transition.state != TransitionState.STARTING:
+                self.state.update()
 
             self.handle_transition()
 

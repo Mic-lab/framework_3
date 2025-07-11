@@ -1,6 +1,7 @@
 from array import array
 import moderngl
 from .utils import read_txt
+from .screen import screen
 
 ctx = moderngl.create_context()
 
