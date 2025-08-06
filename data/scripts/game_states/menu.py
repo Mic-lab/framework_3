@@ -1,5 +1,4 @@
 from .state import State
-from .game import Game
 from ..mgl import shader_handler
 from ..import utils
 from ..button import Button
@@ -61,7 +60,7 @@ class Menu(State):
 
             if btn.clicked:
                 if key == 'game':
-                    self.handler.transition_to(Game)
+                    self.handler.transition_to(self.handler.states.Game)
                 elif key == 'music 1':
                     sfx.play_music('song_1.wav', -1)
                 elif key == 'music 2':

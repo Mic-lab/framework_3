@@ -44,11 +44,11 @@ class Entity:
 
 class PhysicsEntity(Entity):
 
-    def __init__(self, vel=(0, 0), acceleration=(0, 0), max_vel=(9999, 9999), *args, **kwargs):
+    def __init__(self, vel=(0, 0), acceleration=(0, 0), max_vel=9999, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.vel = Vector2(vel)
         self.acceleration = Vector2(acceleration)
-        self.max_vel = Vector2(max_vel)
+        self.max_vel = max_vel
         self.collision_directions = {'up': False,
                                      'right': False,
                                      'down': False,
@@ -64,8 +64,8 @@ class PhysicsEntity(Entity):
 
         self.move(rects)
         self.vel += self.acceleration
-        if abs(self.vel.x) > self.max_vel.x: self.max_vel.x = self.max_vel.x / abs(self.max_vel).x * self.max_vel.x
-        if abs(self.vel.y) > self.max_vel.y: self.max_vel.y = self.max_vel.y / abs(self.max_vel).y * self.max_vel.x
+        if self.vel.length() > self.max_vel:
+            self.vel.scale_to_length(self.max_vel)
 
         return output
 
@@ -83,6 +83,8 @@ class PhysicsEntity(Entity):
             self.resolve_collisions(axis, rects)
 
     def resolve_collisions(self, axis, rects):
+        # NOTE: Instead of breaking when finding tiles, it can also be useful
+        # to append all collided tiles to the collisions directions
         self._real_pos[axis] += self.vel[axis]
         direction = None
         for rect in rects:
@@ -103,7 +105,7 @@ class PhysicsEntity(Entity):
                         direction = 'top'
                     elif self.vel[1] > 0:
                         delta = self.rect.bottom - rect.top
-                        direction = 'bottom'
+                        direction = 'down'
                     else:
                         delta = 0
                         print(f'[WARNING] {self} Didn\'t resolve collision last frame or rect changed sizes ({axis=})')
