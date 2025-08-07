@@ -1,4 +1,9 @@
 import pygame
-from .config import SCREEN_SIZE
+from . import config
 
-screen = pygame.display.set_mode(SCREEN_SIZE,  pygame.OPENGL | pygame.DOUBLEBUF)
+def create_screen():
+    return pygame.display.set_mode(config.SCREEN_SIZE,  pygame.OPENGL | pygame.DOUBLEBUF)
+
+screen = create_screen()
+
+

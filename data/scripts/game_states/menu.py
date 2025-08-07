@@ -8,6 +8,7 @@ from ..entity import Entity, PhysicsEntity
 from ..timer import Timer
 from ..particle import Particle, ParticleGenerator
 from .. import sfx
+from .. import screen, config
 import pygame
 
 class Menu(State):
@@ -16,15 +17,16 @@ class Menu(State):
         super().__init__(*args, **kwargs)
         self.surf = animation.Animation.img_db['test']
 
-        rects = [pygame.Rect(30, 30+i*30, 80, 20) for i in range(4)]
+        rects = [pygame.Rect(30, 30+i*30, 110, 20) for i in range(6)]
         self.buttons = {
             'game': Button(rects[0], 'harloo', 'basic'),
             'music 1': Button(rects[1], 'music 1', 'basic'),
             'music 2': Button(rects[2], 'music 2', 'basic'),
             'stop': Button(rects[3], 'stop', 'basic'),
+            'scale': Button(rects[4], f'Window Scale ({config.SCALE}x)', 'basic'),
         }
 
-        self.entity = PhysicsEntity(pos=(120, 30), name='side', action='idle')
+        self.entity = PhysicsEntity(pos=(150, 30), name='side', action='idle')
         self.e_speed = 1.5
         self.timer = None
         self.particle_gens = [ParticleGenerator.from_template((200, 200), 'angle test'),
@@ -67,6 +69,13 @@ class Menu(State):
                     sfx.play_music('song_2.wav')
                 elif key == 'stop':
                     pygame.mixer.music.fadeout(1000)
+                elif key == 'scale':
+                    config.SCALE = (config.SCALE + 1) % 5
+                    if config.SCALE == 0: config.SCALE = 1
+                    config.SCREEN_SIZE = config.SCALE*config.CANVAS_SIZE[0], config.SCALE*config.CANVAS_SIZE[1]
+                    screen.screen = screen.create_screen()
+                    shader_handler.ctx.viewport = (0, 0, config.SCREEN_SIZE[0], config.SCREEN_SIZE[1])
+                    btn.text = f'Window Scale ({config.SCALE}x)'
 
         self.entity.vel = [0, 0]
         if self.handler.inputs['held'].get('a'):

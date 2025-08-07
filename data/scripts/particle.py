@@ -8,7 +8,7 @@ from pygame import Vector2
 
 class Particle(PhysicsEntity):
 
-    ANGLE_ROUNDING = 30
+    ANGLE_ROUNDING = 10
     cache = {}
 
     def __init__(self, pos=(0, 0), angled=False, color=None, *args, **kwargs):
