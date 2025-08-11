@@ -91,8 +91,13 @@ class Animation:
                 except FileNotFoundError:
                     # No json file means it's a static image
                     img = utils.load_img(os.path.join(directory, file_name))
-                    cls.animation_db[animation_name] = {None: img}  # So that Animation can find it easily
-                    cls.img_db[animation_name] = img                # For ease of access outside of the class
+                    cls.animation_db[animation_name] = {
+                        None: img,
+                        'size': img.get_size()
+                    }  
+                    # So that Animation can find it easily
+                    # For ease of access outside of the class
+                    cls.img_db[animation_name] = img
                 else:
                     spritesheet = utils.load_img(os.path.join(directory, file_name))
                     spritesheet_data = cls.load_spritesheet(animation_config, spritesheet)
@@ -120,7 +125,12 @@ class Animation:
  
     @property
     def img(self):
-        base_img = self.frame['img']
+
+        if self.action is None:
+            base_img = Animation.img_db[self.name]
+        else:
+            base_img = self.frame['img']
+
         if any(self.flip):
             base_img = pygame.transform.flip(base_img, *self.flip)
         return base_img

@@ -5,14 +5,14 @@ from .animation import Animation
     
 class Entity:
     def __init__(self, pos, name, action=None):
-        self._real_pos = Vector2(pos)
+        self.real_pos = Vector2(pos)
         self.name = name
         self.animation = Animation(name, action)
         self.flip = [False, False]
 
     @property
     def pos(self):
-        return Vector2(int(self._real_pos[0]), int(self._real_pos[1]))
+        return Vector2(int(self.real_pos[0]), int(self.real_pos[1]))
 
     def change_pos(self, change_vec):
         # Did not want to use a setter method because it wouldn't be
@@ -20,9 +20,9 @@ class Entity:
         
         # self._real_pos = self.pos + change_vec 
         if change_vec.x:
-            self._real_pos.x = self.pos.x + change_vec.x
+            self.real_pos.x = self.pos.x + change_vec.x
         if change_vec.y:
-            self._real_pos.y = self.pos.y + change_vec.y
+            self.real_pos.y = self.pos.y + change_vec.y
 
     @property
     def rect(self) -> pygame.Rect:
@@ -71,7 +71,7 @@ class PhysicsEntity(Entity):
 
     def move(self, rects):
         if not rects:
-            self._real_pos += self.vel
+            self.real_pos += self.vel
             return
 
         self.collision_directions = {'up': False,
@@ -85,7 +85,7 @@ class PhysicsEntity(Entity):
     def resolve_collisions(self, axis, rects):
         # NOTE: Instead of breaking when finding tiles, it can also be useful
         # to append all collided tiles to the collisions directions
-        self._real_pos[axis] += self.vel[axis]
+        self.real_pos[axis] += self.vel[axis]
         direction = None
         for rect in rects:
             if self.rect.colliderect(rect):

@@ -15,7 +15,6 @@ class Menu(State):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.surf = animation.Animation.img_db['test']
 
         rects = [pygame.Rect(30, 30+i*30, 110, 20) for i in range(6)]
         self.buttons = {
@@ -26,6 +25,7 @@ class Menu(State):
             'scale': Button(rects[4], f'Window Scale ({config.SCALE}x)', 'basic'),
         }
 
+        self.surf = Entity((0, 0), 'test')
         self.entity = PhysicsEntity(pos=(150, 30), name='side', action='idle')
         self.e_speed = 1.5
         self.timer = None
@@ -44,7 +44,10 @@ class Menu(State):
             self.timer = Timer(60)
 
         self.handler.canvas.fill((20, 20, 20))
-        self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
+
+        self.surf.real_pos = self.handler.inputs['mouse pos']
+        self.surf.render(self.handler.canvas)
+        # self.handler.canvas.blit(self.surf, self.handler.inputs['mouse pos'])
 
         if self.handler.inputs['pressed'].get('mouse1'):
             self.particle_gens.append(ParticleGenerator.from_template(self.handler.inputs['mouse pos'], 'smoke'))

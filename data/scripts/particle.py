@@ -93,7 +93,7 @@ class ParticleGenerator:
 
     def generate_particle(self):
         particle = self.base_particle.copy()
-        particle._real_pos = self.pos - 0.5 * Vector2(particle.animation.size)
+        particle.real_pos = self.pos - 0.5 * Vector2(particle.animation.size)
         vel_offset = random.uniform(0, self.vel_randomness) * Vector2(1, 0)
         vel_offset = vel_offset.rotate(random.uniform(0, 360))
         particle.vel += vel_offset
